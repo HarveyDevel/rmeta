@@ -28,10 +28,10 @@ case $opt in
 	2)
 		for mp4 in *.mp4
 		do
-			kid3-cli -c remove "$mp4"
+			kid3-cli -c "set title '$mp4'" "$mp4"
 		done
 		;;
-    3)
+	3)
 		for mkv in *.mkv
 		do
 			echo #
@@ -39,7 +39,7 @@ case $opt in
 		done
 		for mp4 in *.mp4
 		do
-			kid3-cli -c remove "$mp4"
+			kid3-cli -c "set title '$mp4'" "$mp4"
 		done
 		;; 
 	*)
