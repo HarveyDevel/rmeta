@@ -1,44 +1,46 @@
 #!/bin/bash
-#
-# ***WARNING*** ALL FILES IN THE ACTIVE WORK DIRECTORY WILL BE CHANGED
-#
-# Script requires:
-# mkvpropedit (Part of the mkvtoolnix package)
-# kid3-cli
+# Script requires: mkvtoolnix and kid3
 
-echo -e "\E[1;33m"
+case "$1" in
+    mkv | --mkv )
+        for mkv in *.mkv
+        do
+            mkvpropedit "$mkv" -e info -s title="$mkv"
+        done
+    ;;
 
-warning=("*** WARNING *** - This will change title metadata of every .mkv or .mp4 file in the current directory to its filename" "Your current work directory is $PWD")
-options=("Select one of the following options:" "1 For mkv files" "2 For mp4 files" "3 For both mkv and mp4 files" "4 To exit")
-printf '%s\n' "${warning[@]}" "" "${options[@]}"
+    mp4 | --mp4 )
+        for mp4 in *.mp4
+        do
+            kid3-cli -c "set title '$mp4'" "$mp4"
+        done
+        echo "Title metadata has been changed"
+    ;;
 
-read -n 1 opt
-echo -e "\n"
+    all | --all )
+        for mkv in *.mkv
+        do
+            mkvpropedit "$mkv" -e info -s title="$mkv"
+        done
+        for mp4 in *.mp4
+        do
+            kid3-cli -c "set title '$mp4'" "$mp4"
+        done
+        echo "Title metadata has been changed"
+    ;;
 
-case $opt in
-	1)
-		for mkv in *.mkv
-		do
-			mkvpropedit "$mkv" -e info -s title="$mkv"
-		done
-		;;
-	2)
-		for mp4 in *.mp4
-		do
-			kid3-cli -c "set title '$mp4'" "$mp4"
-		done
-		;;
-	3)
-		for mkv in *.mkv
-		do
-			mkvpropedit "$mkv" -e info -s title="$mkv"
-		done
-		for mp4 in *.mp4
-		do
-			kid3-cli -c "set title '$mp4'" "$mp4"
-		done
-		;; 
-	*)
-		echo -e "No metadata was changed\nExiting..."
-		;;
+    * )
+        echo -e "\E[1;33mPlease note this will modify the meta data for ALL files matching the chosen option in this directory:\033[1m\033[0m\n$PWD
+        
+        Usage: [command] [argument]
+
+        For mkv files:
+        rmeta mkv
+        
+        For mp4 files:
+        rmeta mp4
+        
+        For both mkv and mp4 files:
+        rmeta all"
+    ;;
 esac
