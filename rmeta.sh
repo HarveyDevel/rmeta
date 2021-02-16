@@ -3,30 +3,30 @@
 
 case "$1" in
     mkv | --mkv )
-        for mkv in *.mkv
+        for mkvname in *.mkv
         do
-            mkvpropedit "$mkv" -e info -s title="$mkv"
+            mkvpropedit "$mkvname" -e info -s title="$(basename -s .mkv "$mkvname")"
         done
     ;;
 
     mp4 | --mp4 )
-        for mp4 in *.mp4
+        for mp4name in *.mp4
         do
-            kid3-cli -c "set title '$mp4'" "$mp4"
+            kid3-cli -c "set title '$(basename -s .mp4 "$mp4name")'" "$mp4name"
+            echo "Title metadata of $mp4name has been changed"
         done
-        echo "Title metadata has been changed"
     ;;
 
     all | --all )
-        for mkv in *.mkv
+        for mkvname in *.mkv
         do
-            mkvpropedit "$mkv" -e info -s title="$mkv"
+            mkvpropedit "$mkvname" -e info -s title="$(basename -s .mkv "$mkvname")"
         done
-        for mp4 in *.mp4
+        for mp4name in *.mp4
         do
-            kid3-cli -c "set title '$mp4'" "$mp4"
+            kid3-cli -c "set title '$(basename -s .mp4 "$mp4name")'" "$mp4name"
+            echo "Title metadata of $mp4name has been changed"
         done
-        echo "Title metadata has been changed"
     ;;
 
     * )
