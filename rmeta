@@ -2,7 +2,7 @@
 # Script requires: mkvtoolnix and kid3.
 
 # Non recursive operations for mkv.
-nr_mkv() {
+_nr_mkv() {
     for mkvname in *.mkv
     do
         mkvpropedit "$mkvname" -e info -s title="$(basename -s .mkv "$mkvname")"
@@ -10,7 +10,7 @@ nr_mkv() {
 }
 
 # Recursive operations for mkv.
-r_mkv() {
+_r_mkv() {
     shopt -s globstar
     for mkvname in ./**/*.mkv
     do
@@ -19,7 +19,7 @@ r_mkv() {
 }
 
 # Non recursive operations for mp4.
-nr_mp4() {
+_nr_mp4() {
     for mp4name in *.mp4
     do
         kid3-cli -c "set title '$(basename -s .mp4 "$mp4name")'" "$mp4name"
@@ -28,7 +28,7 @@ nr_mp4() {
 }
 
 # Recursive operations for mp4.
-r_mp4() {
+_r_mp4() {
     shopt -s globstar
     for mp4name in ./**/*.mp4
     do
@@ -41,27 +41,27 @@ r_mp4() {
 case "$1" in
     mkv | --mkv )
         if [[ $2 == "-r" ]] || [[ $2 == "--recursive" ]]; then
-            r_mkv
+            _r_mkv
         else
-            nr_mkv
+            _nr_mkv
         fi
     ;;
 
     mp4 | --mp4 )
         if [[ $2 == "-r" ]] || [[ $2 == "--recursive" ]]; then
-            r_mp4
+            _r_mp4
         else
-            nr_mp4
+            _nr_mp4
         fi
     ;;
 
     all | --all )
         if [[ $2 == "-r" ]] || [[ $2 == "--recursive" ]]; then
-            r_mkv
-            r_mp4
+            _r_mkv
+            _r_mp4
         else
-            nr_mp4
-            nr_mkv
+            _nr_mp4
+            _nr_mkv
         fi
     ;;
 
