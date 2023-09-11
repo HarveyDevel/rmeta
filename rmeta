@@ -1,8 +1,12 @@
-#!/bin/env python3
+#!/usr/bin/env python3
+
 import glob
 import subprocess
 import os
 import sys
+import concurrent.futures
+
+THREADS = 10
 
 def mp4_string(title):
     name, name_extention=os.path.splitext(os.path.basename(title).replace("'","\\'",))
@@ -15,28 +19,23 @@ def mkv_string(title):
 def exec_mp4(mp4name):
     mp4name_title=mp4_string(mp4name)
     subprocess.run(["kid3-cli", "-c", f"set title '{mp4name_title}'", mp4name])
+    print(f"Title metadata of {mp4name} has been changed")
 
 def mp4(recursive=False):
-    if recursive:
-        for mp4name in glob.glob('**/*.mp4', recursive=True):
-            exec_mp4(mp4name)
-            print(f"Title metadata of {mp4name} has been changed")
-    else:
-        for mp4name in glob.glob("*.mp4"):
-            exec_mp4(mp4name)
-            print(f"Title metadata of {mp4name} has been changed")
+    mp4_files = glob.glob('**/*.mp4', recursive=True) if recursive else glob.glob("*.mp4")
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=THREADS) as executor:
+        executor.map(exec_mp4, mp4_files)
 
 def exec_mkv(mkvname):
     mkvname_title=mkv_string(mkvname)
     subprocess.run(["mkvpropedit", "-e", "info", "-s", f"title={mkvname_title}", mkvname])
 
 def mkv(recursive=False):
-    if recursive:
-        for mkvname in glob.glob('**/*.mkv', recursive=True):
-            exec_mkv(mkvname)
-    else:
-        for mkvname in glob.glob("*.mkv"):
-            exec_mkv(mkvname)
+    mkv_files = glob.glob('**/*.mkv', recursive=True) if recursive else glob.glob("*.mkv")
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=THREADS) as executor:
+        executor.map(exec_mkv, mkv_files)
 
 if len(sys.argv) < 2:
     print("Usage: rmeta mkv|mp4|all append -r for recursive operations")
